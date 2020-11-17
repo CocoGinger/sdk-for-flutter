@@ -19,7 +19,7 @@ class Client {
     bool initialized = false;
     Dio http;
     PersistCookieJar cookieJar;
-
+     
     Client({this.endPoint = 'https://appwrite.io/v1', this.selfSigned = false, Dio http}) : this.http = http ?? Dio() {
         // Platform is not supported in web so if web, set type to web automatically and skip Platform check
         if(kIsWeb) {
