@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
+
 
 void main() {
   Client client = Client();
@@ -8,13 +10,12 @@ void main() {
       .setEndpoint('https://192.168.0.105:1668/v1')
       .setProject('5fb1b4cf422f1')
       .setSelfSigned();
-  Account account = Account(client);
-  runApp(MyApp(account: account));
+  runApp(MyApp(client: client));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key key, this.account}) : super(key: key);
-  final Account account;
+  const MyApp({Key key, this.client}) : super(key: key);
+  final Client client;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,22 +26,23 @@ class MyApp extends StatelessWidget {
       ),
       home: MyHomePage(
         title: 'Flutter Demo Home Page',
-        account: account,
+        client: client,
       ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title, this.account}) : super(key: key);
-
+  MyHomePage({Key key, this.title, this.client}) : super(key: key);
+  final Client client;
   final String title;
-  final Account account;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,13 +52,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: viewData(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => createUser(widget.account),
+        onPressed: () {
+          
+        },
         child: Icon(Icons.add),
       ),
     );
   }
 
-  createUser(account) async {
+  createUser() async {
+    Account account = Account(widget.client);
     try {
       Response user = await account.create(
           email: 'me4@appwrite.io', password: 'password', name: 'My Name');
@@ -69,6 +74,22 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {
       print("Error:" + e.toString());
     }
+  }
+
+  uploadFile() async {
+    Storage storage = Storage(widget.client);
+    Future result = storage.createFile(
+      file: await MultipartFile.fromFile('./path-to-files/image.jpg',
+          filename: 'image.jpg'),
+      read: [],
+      write: [],
+    );
+
+    result.then((response) {
+      print(response);
+    }).catchError((error) {
+      print(error.response);
+    });
   }
 
   Widget viewData() {
